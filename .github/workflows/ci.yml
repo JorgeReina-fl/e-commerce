@@ -110,7 +110,7 @@ jobs:
         env:
           NODE_ENV: test
           JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-jwt-secret-not-for-production' }}
-          VITE_API_URL: http://localhost:5000
+          VITE_API_URL: http://localhost:5000/api
           # Para Stripe (usa test keys o mocks)
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY || 'sk_test_dummy' }}
           STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY || 'pk_test_dummy' }}
@@ -167,7 +167,7 @@ jobs:
         working-directory: ./client
         run: npm run build
         env:
-          VITE_API_URL: http://localhost:5000
+          VITE_API_URL: http://localhost:5000/api
 
       - name: ✅ Build successful
         run: echo "Client build completed successfully!"
