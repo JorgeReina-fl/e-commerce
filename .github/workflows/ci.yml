@@ -78,6 +78,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
 
       # ---- INSTALAR DEPENDENCIAS ----
       - name: 📦 Install server dependencies
@@ -152,6 +156,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
 
       - name: 📦 Install client dependencies
         working-directory: ./client
