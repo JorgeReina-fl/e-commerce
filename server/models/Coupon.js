@@ -77,8 +77,6 @@ const couponSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Index for fast code lookups
-couponSchema.index({ code: 1 });
 
 // Validation: Percentage cannot exceed 100%
 couponSchema.pre('save', function () {

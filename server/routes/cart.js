@@ -137,7 +137,7 @@ router.post('/items', protect, async (req, res) => {
         // Check stock for specific available variant
         const availableStock = await getAvailableStock(productId, size, color, material);
         if (availableStock === 0) {
-            return res.status(400).json({ message: 'Selected combination not available' });
+            return res.status(400).json({ message: 'Selected size is out of stock or combination not available' });
         }
 
         let cart = await Cart.findOne({ user: req.user._id });
