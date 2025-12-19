@@ -136,18 +136,9 @@ describe('Happy Path - Complete Purchase Flow', () => {
             .click();
 
         // Verify we reached payment step
-        // In CI without real Stripe keys, payment might show error or not load
-        // Check for either: payment elements, error message, or that we're still on checkout
-        cy.get('body', { timeout: 10000 }).should(($body) => {
-            const hasPaymentElement = $body.find('[class*="payment"], [class*="stripe"], #payment-element').length > 0;
-            const hasPaymentError = $body.text().toLowerCase().includes('error') ||
-                $body.text().toLowerCase().includes('stripe');
-            const isOnCheckout = window.location.pathname.includes('checkout');
-
-            // Test passes if we reached payment step (element visible) or
-            // if we're on checkout page (even if Stripe failed to load in CI)
-            expect(hasPaymentElement || hasPaymentError || isOnCheckout).to.be.true;
-        });
+        // In CI without real Stripe keys, payment might show error, loading spinner, or empty state
+        // BUT if we reached step 2, the text "Pago Seguro" should be visible
+        cy.contains('h2', /pago seguro|payment/i, { timeout: 15000 }).should('be.visible');
 
         cy.log('✅ Payment step reached - HAPPY PATH COMPLETE!');
     });
