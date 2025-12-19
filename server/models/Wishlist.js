@@ -53,7 +53,6 @@ const wishlistSchema = new mongoose.Schema({
 
 // Indexes for faster queries
 wishlistSchema.index({ user: 1 });
-wishlistSchema.index({ shareToken: 1 });
 wishlistSchema.index({ 'items.product': 1 });
 
 // Virtual for item count
