@@ -64,7 +64,7 @@ const ProductCard = ({ product, viewMode = 'grid', onQuickView }) => {
     // List View Layout
     if (viewMode === 'list') {
         return (
-            <div className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 overflow-hidden transition-all duration-300 flex">
+            <div data-testid="product-card" className="group bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 overflow-hidden transition-all duration-300 flex">
                 {/* Product Image */}
                 <Link to={`/product/${product.slug || product._id}`} className="w-40 sm:w-48 flex-shrink-0">
                     <div className="relative h-full min-h-48 overflow-hidden bg-neutral-100 dark:bg-neutral-800">
