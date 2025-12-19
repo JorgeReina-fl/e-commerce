@@ -1,41 +1,71 @@
 const nodemailer = require('nodemailer');
 
+/**
+ * Send email using Nodemailer
+ * 
+ * IMPORTANT: For Render.com deployment, use Brevo (Sendinblue) instead of Gmail
+ * because Render blocks standard SMTP ports (25, 465, 587).
+ * 
+ * Brevo Setup (FREE - 300 emails/day):
+ * 1. Create account at brevo.com
+ * 2. Go to SMTP & API > SMTP
+ * 3. Get your SMTP key
+ * 4. Set these env vars in Render:
+ *    - EMAIL_HOST=smtp-relay.brevo.com
+ *    - EMAIL_PORT=587
+ *    - EMAIL_USER=your-brevo-login-email
+ *    - EMAIL_PASS=your-brevo-smtp-key
+ *    - FROM_EMAIL=your-verified-sender@domain.com
+ *    - FROM_NAME=LuxeThread
+ */
+
 const sendEmail = async (options) => {
     // Check if SMTP is configured
     if (!process.env.EMAIL_HOST) {
         console.log('----------------------------------------------------');
-        console.log('WARNING: EMAIL_HOST not configured. Email would be sent to:', options.to);
-        console.log('Subject:', options.subject);
-        console.log('Content:', options.htmlContent);
+        console.log('[EMAIL] WARNING: EMAIL_HOST not configured.');
+        console.log('[EMAIL] To enable emails, set up Brevo (recommended for Render):');
+        console.log('[EMAIL]   EMAIL_HOST=smtp-relay.brevo.com');
+        console.log('[EMAIL]   EMAIL_PORT=587');
+        console.log('[EMAIL] Email would be sent to:', options.to);
+        console.log('[EMAIL] Subject:', options.subject);
         console.log('----------------------------------------------------');
         return;
     }
 
-    // Create transporter
+    const port = parseInt(process.env.EMAIL_PORT) || 587;
+
+    // Create transporter with optimized settings for cloud providers
     const transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
-        secure: process.env.EMAIL_PORT == 465, // true for 465, false for other ports
+        port: port,
+        secure: port === 465, // true only for port 465
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS
         },
-        // Improve connection timeout settings
-        connectionTimeout: 10000, // 10 seconds
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
+        // Extended timeouts for cloud environments
+        connectionTimeout: 30000, // 30 seconds
+        greetingTimeout: 30000,
+        socketTimeout: 30000,
+        // TLS settings
         tls: {
-            rejectUnauthorized: false // Helps with self-signed certs in dev/test
-        }
+            rejectUnauthorized: true, // Keep true for production security
+            minVersion: 'TLSv1.2'
+        },
+        // Debug in development
+        debug: process.env.NODE_ENV !== 'production',
+        logger: process.env.NODE_ENV !== 'production'
     });
 
-    // Verify connection configuration
+    // Verify connection (with graceful handling)
     try {
         await transporter.verify();
-        console.log('[EMAIL] Connection verified successfully');
-    } catch (error) {
-        console.error('[EMAIL] Connection verification failed:', error);
-        // Don't throw here, let the send attempt fail or log the specific error
+        console.log('[EMAIL] ✓ SMTP connection verified');
+    } catch (verifyError) {
+        console.error('[EMAIL] ✗ SMTP verification failed:', verifyError.message);
+        console.error('[EMAIL] Host:', process.env.EMAIL_HOST, 'Port:', port);
+        throw new Error(`SMTP connection failed: ${verifyError.message}`);
     }
 
     // Email Template
