@@ -29,6 +29,10 @@ const { getCacheStats, clearCache } = require('./middleware/cacheMiddleware');
 
 const app = express();
 
+// Trust proxy (Render/Vercel/Heroku)
+// Required for accurate IP limiting behind load balancers
+app.set('trust proxy', 1);
+
 // Create HTTP server for Socket.io
 const server = http.createServer(app);
 
