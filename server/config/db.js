@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
     try {
-        let uri = process.env.MONGODB_URI;
+        // Accept either MONGODB_URI (standard) or MONGO_URI (common alternative)
+        let uri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
         // Automatically use in-memory DB in test environments or CI if no URI is provided
         if (!uri && (process.env.NODE_ENV === 'test' || process.env.GITHUB_ACTIONS)) {
@@ -17,7 +18,8 @@ const connectDB = async () => {
         }
 
         if (!uri) {
-            throw new Error('MONGODB_URI is not defined. Please check your .env file.');
+            console.error('Available Environment Variables:', Object.keys(process.env).filter(k => !k.includes('SECRET') && !k.includes('KEY')));
+            throw new Error('MONGODB_URI (or MONGO_URI) is not defined. Please check your .env or Render configuration.');
         }
 
         const conn = await mongoose.connect(uri);
