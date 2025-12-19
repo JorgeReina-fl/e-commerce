@@ -43,6 +43,7 @@ const CartPage = () => {
                         return (
                             <div
                                 key={index}
+                                data-testid="cart-item"
                                 className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 flex gap-4 ${isOutOfStock ? 'border-2 border-red-300' : ''}`}
                             >
                                 {/* Product Image */}

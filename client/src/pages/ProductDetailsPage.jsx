@@ -378,7 +378,7 @@ const ProductDetailsPage = () => {
                     </div>
 
                     {/* Price */}
-                    <div className="mb-6">
+                    <div className="mb-6" data-testid="product-price">
                         {product.discount > 0 ? (
                             <div className="flex items-center gap-3">
                                 <span className="text-4xl font-bold text-red-600">€{discountedPrice.toFixed(2)}</span>
@@ -469,6 +469,7 @@ const ProductDetailsPage = () => {
                                 return (
                                     <button
                                         key={size}
+                                        data-testid={`size-${size}`}
                                         onClick={() => {
                                             if (isAvailable) {
                                                 setSelectedSize(size);

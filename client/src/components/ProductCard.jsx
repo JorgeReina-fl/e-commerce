@@ -100,7 +100,7 @@ const ProductCard = ({ product, viewMode = 'grid', onQuickView }) => {
                                     </h3>
                                 </Link>
                             </div>
-                            <div className="text-right flex-shrink-0">
+                            <div className="text-right flex-shrink-0" data-testid="product-price">
                                 {product.discount > 0 ? (
                                     <div className="flex flex-col items-end">
                                         <span className="text-lg font-semibold text-neutral-900 dark:text-white tabular-nums">
@@ -153,9 +153,8 @@ const ProductCard = ({ product, viewMode = 'grid', onQuickView }) => {
         );
     }
 
-    // Grid View Layout (default)
     return (
-        <div className="group bg-white dark:bg-neutral-900 border border-transparent hover:border-neutral-200 dark:hover:border-neutral-800 transition-all duration-300">
+        <div data-testid="product-card" className="group bg-white dark:bg-neutral-900 border border-transparent hover:border-neutral-200 dark:hover:border-neutral-800 transition-all duration-300">
             {/* Product Image */}
             <Link to={`/product/${product.slug || product._id}`}>
                 <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100 dark:bg-neutral-800 cursor-pointer">
