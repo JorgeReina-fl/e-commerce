@@ -1,0 +1,360 @@
+/* =============================================
+   LUXETHREAD - PREMIUM GLOBAL STYLES
+   ============================================= */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* =============================================
+   CSS CUSTOM PROPERTIES - DEFAULT VALUES
+   These are overridden by BrandingProvider on mount
+   ============================================= */
+:root {
+    /* Primary brand color */
+    --color-primary-light: #93C5FD;
+    --color-primary: #2563EB;
+    --color-primary-hover: #1D4ED8;
+    --color-primary-dark: #1E40AF;
+
+    /* Secondary brand color */
+    --color-secondary-light: #E5E7EB;
+    --color-secondary: #6B7280;
+    --color-secondary-hover: #4B5563;
+    --color-secondary-dark: #374151;
+
+    /* Accent color */
+    --color-accent-light: #FEF3C7;
+    --color-accent: #D4A853;
+    --color-accent-hover: #B8956C;
+    --color-accent-dark: #92400E;
+
+    /* Functional colors */
+    --color-success-light: #D1FAE5;
+    --color-success: #059669;
+    --color-success-dark: #065F46;
+
+    --color-warning-light: #FEF3C7;
+    --color-warning: #D97706;
+    --color-warning-dark: #92400E;
+
+    --color-error-light: #FEE2E2;
+    --color-error: #DC2626;
+    --color-error-dark: #991B1B;
+
+    --color-info-light: #DBEAFE;
+    --color-info: #2563EB;
+    --color-info-dark: #1E40AF;
+
+    /* Fonts */
+    --font-primary: 'Inter';
+    --font-display: 'Outfit';
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================
+   BASE LAYER - Estilos fundamentales
+   ============================================= */
+@layer base {
+    html {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-neutral-50 text-neutral-800;
+        @apply dark:bg-dark-bg dark:text-neutral-100;
+        line-height: 1.6;
+    }
+
+    /* Tipografía refinada */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: 'Outfit', 'Inter', sans-serif;
+        @apply font-medium tracking-tight;
+    }
+
+    h1 {
+        @apply text-2xl sm:text-3xl md:text-4xl;
+    }
+
+    h2 {
+        @apply text-xl sm:text-2xl md:text-3xl;
+    }
+
+    h3 {
+        @apply text-lg sm:text-xl;
+    }
+
+    /* Links sin underline por defecto */
+    a {
+        @apply transition-colors duration-200;
+    }
+
+    /* Inputs y formularios base */
+    input,
+    textarea,
+    select {
+        @apply font-sans;
+    }
+
+    /* Imágenes responsive */
+    img {
+        @apply max-w-full h-auto;
+    }
+
+    /* Focus states elegantes */
+    *:focus-visible {
+        @apply outline-none ring-1 ring-neutral-900 ring-offset-2;
+        @apply dark:ring-neutral-100;
+    }
+
+    /* Selection color */
+    ::selection {
+        @apply bg-neutral-900 text-white;
+    }
+
+    /* Scrollbar personalizado */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-neutral-100 dark:bg-neutral-900;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-neutral-300 dark:bg-neutral-700;
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-neutral-400 dark:bg-neutral-600;
+    }
+}
+
+/* =============================================
+   COMPONENTS - Clases reutilizables
+   ============================================= */
+@layer components {
+
+    /* Contenedor principal */
+    .container-main {
+        @apply w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12;
+    }
+
+    /* Botón primario - Negro elegante */
+    .btn-primary {
+        @apply inline-flex items-center justify-center;
+        @apply bg-neutral-900 hover:bg-black text-white;
+        @apply dark:bg-white dark:hover:bg-neutral-100 dark:text-neutral-900;
+        @apply px-6 py-3 sm:px-8;
+        @apply text-sm font-medium uppercase tracking-wider;
+        @apply transition-all duration-200;
+        @apply rounded-none;
+        @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+
+    /* Botón secundario - Outline */
+    .btn-secondary {
+        @apply inline-flex items-center justify-center;
+        @apply bg-transparent hover:bg-neutral-100;
+        @apply dark:hover:bg-neutral-800;
+        @apply text-neutral-900 dark:text-white;
+        @apply border border-neutral-300 dark:border-neutral-600;
+        @apply hover:border-neutral-900 dark:hover:border-white;
+        @apply px-6 py-3;
+        @apply text-sm font-medium uppercase tracking-wider;
+        @apply transition-all duration-200;
+        @apply rounded-none;
+    }
+
+    /* Botón ghost */
+    .btn-ghost {
+        @apply inline-flex items-center justify-center;
+        @apply bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-800;
+        @apply text-neutral-600 dark:text-neutral-400;
+        @apply px-4 py-2;
+        @apply text-sm font-medium;
+        @apply transition-colors duration-200;
+    }
+
+    /* Input premium */
+    .input-premium {
+        @apply w-full px-4 py-3;
+        @apply bg-white dark:bg-neutral-900;
+        @apply border border-neutral-300 dark:border-neutral-600;
+        @apply focus:border-neutral-900 dark:focus:border-white;
+        @apply focus:outline-none focus:ring-0;
+        @apply text-neutral-900 dark:text-white;
+        @apply placeholder:text-neutral-400;
+        @apply transition-colors duration-200;
+        @apply rounded-none;
+    }
+
+    /* Card premium */
+    .card-premium {
+        @apply bg-white dark:bg-neutral-900;
+        @apply border border-neutral-200 dark:border-neutral-800;
+        @apply transition-all duration-300;
+    }
+
+    .card-premium:hover {
+        @apply border-neutral-300 dark:border-neutral-700;
+    }
+
+    /* Badge premium */
+    .badge {
+        @apply inline-flex items-center;
+        @apply px-2 py-0.5;
+        @apply text-[10px] sm:text-xs font-medium uppercase tracking-wider;
+    }
+
+    .badge-dark {
+        @apply bg-neutral-900 text-white;
+    }
+
+    .badge-light {
+        @apply bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300;
+    }
+
+    .badge-sale {
+        @apply bg-error-600 text-white;
+    }
+
+    .badge-gold {
+        @apply bg-gold-500 text-neutral-900;
+    }
+
+    /* Link con underline animado */
+    .link-underline {
+        @apply relative;
+    }
+
+    .link-underline::after {
+        content: '';
+        @apply absolute bottom-0 left-0;
+        @apply h-px w-0 bg-current;
+        @apply transition-all duration-300;
+    }
+
+    .link-underline:hover::after {
+        @apply w-full;
+    }
+
+    /* Aspect ratios */
+    .aspect-product {
+        aspect-ratio: 3 / 4;
+    }
+
+    .aspect-banner {
+        aspect-ratio: 21 / 9;
+    }
+}
+
+/* =============================================
+   UTILITIES - Utilidades adicionales
+   ============================================= */
+@layer utilities {
+
+    /* Text balance para títulos */
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    /* Hide scrollbar pero mantener scroll */
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Line clamp */
+    .line-clamp-1 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+    }
+
+    .line-clamp-2 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+}
+
+/* =============================================
+   PRINT STYLES
+   ============================================= */
+@media print {
+    @page {
+        margin: 0.5cm;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    nav,
+    footer,
+    .print\\:hidden {
+        display: none !important;
+    }
+
+    button,
+    a[class*="bg-"] {
+        display: none !important;
+    }
+
+    div[class*="max-w"] {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    body,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    span,
+    div,
+    a,
+    li,
+    td,
+    th {
+        color: #000000 !important;
+        text-shadow: none !important;
+    }
+
+    * {
+        box-shadow: none !important;
+    }
+
+    img {
+        max-width: 100%;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}

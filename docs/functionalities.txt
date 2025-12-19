@@ -1,0 +1,1382 @@
+================================================================================
+                         LUXETHREAD E-COMMERCE - DOCUMENTACIÓN COMPLETA
+================================================================================
+                        Última actualización: 18 de Diciembre, 2025
+================================================================================
+
+Este documento sirve como referencia completa del proyecto e-commerce LuxeThread.
+Incluye todas las funcionalidades implementadas, estructura del proyecto, stack
+tecnológico, y guía de configuración.
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  ÍNDICE                                                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+  1.  Autenticación y Usuarios
+  2.  Catálogo de Productos
+  3.  Comparador de Productos
+  4.  Carrito de Compras
+  5.  Sistema de Cupones y Descuentos
+  6.  Checkout y Pagos (Stripe)
+  7.  Gestión de Pedidos
+  8.  Lista de Deseos (Wishlist)
+  9.  Reseñas y Valoraciones
+  10. Panel de Administración
+  11. Sistema de Notificaciones
+  12. Inventario y Stock
+  13. Analytics y Reportes
+  14. Automatización (Cron Jobs)
+  15. Marketing y Social
+  16. Internacionalización (i18n)
+  17. Optimización y Rendimiento
+  18. SEO
+  19. UI/UX
+  20. Testing Automatizado
+  21. Stack Tecnológico
+  22. Estructura del Proyecto
+  23. Configuración y Variables de Entorno
+  24. Comandos de Desarrollo
+  25. Sistema de Branding (White-Label)
+  26. Docker y Contenedorización
+  27. Guía de Despliegue
+  28. Posibles Implementaciones Futuras
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  1. AUTENTICACIÓN Y USUARIOS                                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Registro de usuarios con validación de email
+[✓] Login con JWT tokens (expiración configurable)
+[✓] Recuperación de contraseña por email (nodemailer)
+[✓] Reset de contraseña con token temporal (1 hora de validez)
+[✓] Sistema de roles: Usuario normal / Administrador
+[✓] Perfil de usuario editable (nombre, email, contraseña)
+[✓] Historial completo de pedidos del usuario
+[✓] Protección de rutas frontend (ProtectedRoute.jsx)
+[✓] Middleware de autenticación backend (authMiddleware.js)
+
+ENDPOINTS API:
+  POST   /api/auth/register      - Registro de nuevo usuario
+  POST   /api/auth/login         - Inicio de sesión
+  GET    /api/auth/profile       - Obtener perfil actual
+  PUT    /api/auth/profile       - Actualizar perfil
+  POST   /api/auth/forgot-password - Solicitar reset de contraseña
+  POST   /api/auth/reset-password  - Restablecer contraseña con token
+
+MODELO User:
+  - name, email, password (hash bcrypt)
+  - isAdmin: Boolean
+  - resetPasswordToken, resetPasswordExpires
+  - createdAt, updatedAt
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  2. CATÁLOGO DE PRODUCTOS                                                    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Listado de productos con paginación (10 por página configurable)
+[✓] Filtros avanzados:
+    - Por categoría (Ropa, Calzado, Accesorios, etc.)
+    - Por rango de precio
+    - Por color (múltiple selección)
+    - Por material
+    - Por talla disponible
+[✓] Ordenamiento:
+    - Precio (ascendente/descendente)
+    - Rating (mejor valorados)
+    - Fecha (más nuevos)
+    - Nombre (alfabético)
+    - Popularidad (más vendidos)
+[✓] Búsqueda por nombre/descripción (SearchBox.jsx)
+[✓] Vista rápida en modal (QuickViewModal.jsx)
+[✓] Galería de imágenes con zoom (ImageGallery.jsx)
+[✓] Selector de talla con indicador de stock
+[✓] Selector de color con imagen por variante
+[✓] Productos relacionados automáticos (RelatedProducts.jsx)
+[✓] Sistema de badges (ProductBadge.jsx):
+    - "Nuevo" (productos < 7 días)
+    - "Oferta" (productos con descuento)
+    - "Bestseller" (> 50 ventas)
+    - "Stock bajo" (< 5 unidades)
+    - "Agotado" (stock = 0)
+[✓] Lazy loading de imágenes (LazyImage.jsx)
+[✓] Vista grid/lista intercambiable
+[✓] Breadcrumbs de navegación (Breadcrumbs.jsx)
+[✓] URLs SEO-friendly con slugs (/product/camiseta-algodon-organico)
+
+ENDPOINTS API:
+  GET    /api/products           - Listar productos (con paginación y filtros)
+  GET    /api/products/:slug     - Obtener producto por slug
+  GET    /api/products/id/:id    - Obtener producto por ID
+  POST   /api/products           - Crear producto (admin)
+  PUT    /api/products/:id       - Actualizar producto (admin)
+  DELETE /api/products/:id       - Eliminar producto (admin)
+
+MODELO Product:
+  - name, slug, description
+  - price, discount (%), finalPrice (calculado)
+  - category, subcategory
+  - images: [{ url, color }]
+  - colors: [{ name, hex, images }]
+  - materials: [String]
+  - sizes: [String] (configurable: únicas, numéricas 35-47, letras XXS-XXXL)
+  - variants: [{ color, material, size, stock, sku }]
+  - rating, numReviews, salesCount
+  - tags: [String]
+  - isActive, isFeatured
+  - createdAt, updatedAt
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  3. COMPARADOR DE PRODUCTOS                                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Añadir productos a comparación (máximo 4 simultáneos)
+[✓] Vista de comparativa lado a lado (ComparePage.jsx)
+[✓] Atributos comparados:
+    - Precio y descuento
+    - Rating y número de reseñas
+    - Stock disponible
+    - Categoría
+    - Materiales
+    - Tallas disponibles
+[✓] Añadir al carrito directamente desde comparación
+[✓] Persistencia en localStorage (mantiene al cerrar navegador)
+[✓] Botón toggle en tarjetas de producto
+[✓] Context dedicado (CompareContext.jsx)
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  4. CARRITO DE COMPRAS                                                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Añadir/eliminar productos al carrito
+[✓] Modificar cantidad con límite de stock en tiempo real
+[✓] Selección de variante (color, material, talla)
+[✓] Persistencia dual:
+    - localStorage para visitantes
+    - MongoDB para usuarios logueados
+[✓] Sincronización automática al hacer login (merge de carritos)
+[✓] Cálculo automático:
+    - Subtotal por producto
+    - Descuentos aplicados
+    - IVA (21% configurable)
+    - Total final
+[✓] Aplicación de cupones
+[✓] Detección de carritos abandonados (> 24 horas)
+[✓] Context dedicado (CartContext.jsx)
+
+ENDPOINTS API:
+  GET    /api/cart               - Obtener carrito del usuario
+  POST   /api/cart/add           - Añadir producto
+  PUT    /api/cart/update        - Actualizar cantidad
+  DELETE /api/cart/remove/:id    - Eliminar producto
+  DELETE /api/cart/clear         - Vaciar carrito
+  POST   /api/cart/sync          - Sincronizar carrito local
+
+MODELO Cart:
+  - user: ObjectId (ref User)
+  - items: [{ product, color, material, size, quantity }]
+  - coupon: ObjectId (ref Coupon)
+  - updatedAt
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  5. SISTEMA DE CUPONES Y DESCUENTOS                                          ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Tipos de cupones:
+    - Porcentaje (%) - ej: 15% de descuento
+    - Cantidad fija (€) - ej: 10€ de descuento
+[✓] Restricciones configurables:
+    - Mínimo de compra requerido
+    - Fecha de expiración
+    - Límite de usos global
+    - Límite por usuario
+    - Máximo de descuento (cap)
+[✓] Validación atómica (previene condiciones de carrera en uso)
+[✓] Incremento/rollback de uso transaccional
+[✓] Solo UN cupón por pedido (sin stacking)
+[✓] Panel admin para gestión completa (CouponManagement.jsx)
+[✓] Indicador visual de cupón aplicado en carrito/checkout
+
+ENDPOINTS API:
+  GET    /api/coupons            - Listar cupones (admin)
+  POST   /api/coupons            - Crear cupón (admin)
+  PUT    /api/coupons/:id        - Actualizar cupón (admin)
+  DELETE /api/coupons/:id        - Eliminar cupón (admin)
+  POST   /api/coupons/validate   - Validar cupón (usuario)
+  POST   /api/coupons/apply      - Aplicar cupón a carrito
+
+MODELO Coupon:
+  - code (único, uppercase)
+  - type: 'percentage' | 'fixed'
+  - value: Number
+  - minPurchase: Number
+  - maxDiscount: Number
+  - usageLimit, usedCount
+  - expiresAt: Date
+  - isActive: Boolean
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  6. CHECKOUT Y PAGOS (STRIPE)                                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Formulario de envío con validación completa
+[✓] Integración completa con Stripe:
+    - Stripe Elements para tarjetas
+    - Payment Intents API
+    - Webhooks para confirmación
+[✓] Métodos de pago soportados:
+    - Tarjetas de crédito/débito
+    - Apple Pay / Google Pay (si disponible)
+[✓] Cálculo de envío por ubicación:
+    - España peninsular
+    - Europa
+    - Internacional
+    - Envío gratis sobre umbral (50€ configurable)
+[✓] Aplicación de cupones en checkout
+[✓] Resumen detallado antes de pagar
+[✓] Verificación de precios server-side (anti-manipulación)
+[✓] Verificación de stock antes de procesar pago
+[✓] Página de confirmación de pedido (OrderSuccessPage.jsx)
+[✓] Emails de confirmación automáticos
+
+ENDPOINTS API:
+  POST   /api/payment/create-intent    - Crear PaymentIntent de Stripe
+  POST   /api/payment/confirm          - Confirmar pago
+  POST   /api/payment/webhook          - Webhook de Stripe (eventos)
+  POST   /api/payment/refund           - Procesar reembolso (admin)
+
+VARIABLES DE ENTORNO REQUERIDAS:
+  STRIPE_SECRET_KEY      - Clave secreta de Stripe
+  STRIPE_PUBLISHABLE_KEY - Clave pública de Stripe
+  STRIPE_WEBHOOK_SECRET  - Secreto para webhooks
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  7. GESTIÓN DE PEDIDOS                                                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Crear pedido desde carrito
+[✓] Estados del pedido:
+    - Pendiente (pending)
+    - Pagado (paid)
+    - En proceso (processing)
+    - Enviado (shipped)
+    - Entregado (delivered)
+    - Cancelado (cancelled)
+    - Reembolsado (refunded)
+[✓] Tracking de pedido público (sin login requerido)
+[✓] Actualización de estado por admin
+[✓] Historial de cambios de estado con timestamps
+[✓] Detalles de pedido con timeline visual (OrderDetailsPage.jsx)
+[✓] Generación de factura PDF / imprimible
+[✓] Cancelación de pedidos (si no enviado)
+[✓] Sistema de reembolsos con Stripe
+[✓] Notificaciones automáticas por cambio de estado
+
+ENDPOINTS API:
+  GET    /api/orders                   - Listar pedidos del usuario
+  GET    /api/orders/:id               - Obtener pedido por ID
+  GET    /api/orders/track/:trackingNumber - Tracking público
+  POST   /api/orders                   - Crear pedido
+  PUT    /api/orders/:id/status        - Actualizar estado (admin)
+  PUT    /api/orders/:id/cancel        - Cancelar pedido
+  GET    /api/orders/admin/all         - Todos los pedidos (admin)
+
+MODELO Order:
+  - user: ObjectId
+  - orderNumber, trackingNumber
+  - items: [{ product, name, quantity, price, color, size }]
+  - shippingAddress: { name, email, phone, address, city, postalCode, country }
+  - payment: { method, stripePaymentId, status }
+  - pricing: { subtotal, shipping, discount, tax, total }
+  - coupon: ObjectId
+  - status, statusHistory: [{ status, date, note }]
+  - deliveredAt, createdAt
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  8. LISTA DE DESEOS (WISHLIST)                                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Múltiples listas por usuario (ej: "Favoritos", "Para regalar", "Navidad")
+[✓] Añadir productos con:
+    - Notas personales
+    - Prioridad (alta, media, baja)
+    - Variante deseada (color, talla)
+[✓] Selector de lista al añadir producto (WishlistSelector.jsx)
+[✓] Compartir lista con enlace público único
+[✓] Vista de lista compartida sin login (SharedWishlistPage.jsx)
+[✓] Recordatorios de wishlist (email semanal - cron job)
+[✓] Alertas de bajada de precio
+[✓] Mover productos entre listas
+[✓] Context dedicado (WishlistContext.jsx)
+
+ENDPOINTS API:
+  GET    /api/wishlist                 - Obtener wishlists del usuario
+  POST   /api/wishlist                 - Crear nueva wishlist
+  PUT    /api/wishlist/:id             - Actualizar wishlist
+  DELETE /api/wishlist/:id             - Eliminar wishlist
+  POST   /api/wishlist/:id/items       - Añadir producto a lista
+  DELETE /api/wishlist/:id/items/:productId - Eliminar producto
+  GET    /api/wishlist/shared/:shareId - Obtener lista compartida (público)
+
+MODELO Wishlist:
+  - user: ObjectId
+  - name: String
+  - items: [{ product, note, priority, variant, addedAt }]
+  - isPublic: Boolean
+  - shareId: String (uuid único)
+  - createdAt, updatedAt
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  9. RESEÑAS Y VALORACIONES                                                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Sistema de 5 estrellas (Rating.jsx)
+[✓] Comentarios de texto con límite de caracteres
+[✓] Solo compradores verificados pueden reseñar
+[✓] Badge "Compra verificada" visible en reseña
+[✓] Una reseña por producto por usuario
+[✓] Cálculo automático de rating promedio del producto
+[✓] Panel admin para moderar reseñas (AdminReviews.jsx)
+[✓] Eliminar reseñas inapropiadas
+[✓] Ordenar reseñas por fecha/rating/utilidad
+
+ENDPOINTS API:
+  GET    /api/products/:id/reviews     - Obtener reseñas de producto
+  POST   /api/products/:id/reviews     - Crear reseña
+  PUT    /api/products/:id/reviews/:reviewId - Editar reseña propia
+  DELETE /api/products/:id/reviews/:reviewId - Eliminar reseña
+  GET    /api/admin/reviews            - Todas las reseñas (admin)
+
+RESEÑAS EMBEBIDAS EN MODELO PRODUCT:
+  reviews: [{
+    user: ObjectId,
+    name: String,
+    rating: Number (1-5),
+    comment: String,
+    isVerifiedPurchase: Boolean,
+    createdAt: Date
+  }]
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  10. PANEL DE ADMINISTRACIÓN                                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Dashboard con métricas clave (AdminDashboard.jsx):
+    - Ventas del día/semana/mes
+    - Pedidos pendientes
+    - Productos bajo stock
+    - Usuarios nuevos
+[✓] Gestión de productos (CRUD completo):
+    - Formulario avanzado (ProductFormModal.jsx)
+    - Múltiples imágenes con preview
+    - Colores con código hex y selector visual
+    - Materiales y tallas configurables
+    - Stock por combinación color/material/talla
+    - Descuentos y tags
+    - Sistema de tallas flexible (únicas, numéricas, letras)
+[✓] Gestión de pedidos (AdminOrderList.jsx):
+    - Listado con filtros por estado
+    - Actualización de estado
+    - Detalles expandibles
+    - Acciones rápidas
+[✓] Gestión de usuarios:
+    - Listado de usuarios
+    - Promover/degradar admin
+    - Desactivar cuentas
+[✓] Moderación de reseñas (AdminReviews.jsx)
+[✓] Analytics avanzados (AdvancedAnalytics.jsx):
+    - Gráficos interactivos
+    - Comparativas temporales
+    - Exportación de datos
+[✓] Gestión de inventario (InventoryManagement.jsx):
+    - Dashboard de stock
+    - Alertas configurables
+    - Historial de movimientos
+[✓] Campañas de marketing
+[✓] Gestión de cupones (CouponManagement.jsx)
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  11. SISTEMA DE NOTIFICACIONES                                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Notificaciones in-app (NotificationBell.jsx):
+    - Badge con contador de no leídas
+    - Dropdown con últimas notificaciones
+    - Link a centro de notificaciones
+[✓] Centro de notificaciones (NotificationCenter.jsx):
+    - Listado completo paginado
+    - Filtros por tipo
+    - Marcar como leída/no leída
+    - Eliminar notificaciones
+[✓] Tipos de notificación:
+    - Pedido (nuevo, estado, envío)
+    - Stock (producto disponible)
+    - Promoción (ofertas, cupones)
+    - Sistema (mantenimiento, actualizaciones)
+[✓] Alertas de stock (cuando producto vuelve a tener stock)
+[✓] Hook para Push Notifications (usePushNotifications.js)
+[✓] Emails automáticos (emailTemplates.js):
+    - Confirmación de registro
+    - Confirmación de pedido (con resumen)
+    - Cambio de estado de pedido
+    - Carrito abandonado (24h)
+    - Recordatorio de wishlist (semanal)
+    - Newsletter semanal
+
+ENDPOINTS API:
+  GET    /api/notifications            - Obtener notificaciones
+  PUT    /api/notifications/:id/read   - Marcar como leída
+  PUT    /api/notifications/read-all   - Marcar todas como leídas
+  DELETE /api/notifications/:id        - Eliminar notificación
+
+MODELO Notification:
+  - user: ObjectId
+  - type: 'order' | 'stock' | 'promotion' | 'system'
+  - title, message
+  - link: String
+  - isRead: Boolean
+  - createdAt
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  12. INVENTARIO Y STOCK                                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Stock por combinación color/material/talla
+[✓] SKU único por variante (autogenerado)
+[✓] Alertas de stock bajo (configurable por producto)
+[✓] Sugerencias de reposición automáticas
+[✓] Historial de movimientos de stock (StockMovement)
+[✓] Dashboard de inventario (InventoryManagement.jsx):
+    - Resumen general
+    - Productos críticos
+    - Tendencias de venta
+[✓] Filtros y búsqueda avanzada
+[✓] Exportar a Excel/CSV (exportService.js)
+
+ENDPOINTS API:
+  GET    /api/inventory                - Dashboard de inventario
+  GET    /api/inventory/low-stock      - Productos con bajo stock
+  PUT    /api/inventory/:productId     - Actualizar stock
+  GET    /api/inventory/movements      - Historial de movimientos
+  GET    /api/inventory/export         - Exportar datos
+
+MODELO StockMovement:
+  - product: ObjectId
+  - variant: { color, material, size }
+  - type: 'sale' | 'restock' | 'adjustment' | 'return'
+  - quantity: Number (+ o -)
+  - previousStock, newStock
+  - reason: String
+  - user: ObjectId (quien hizo el cambio)
+  - createdAt
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  13. ANALYTICS Y REPORTES                                                    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Métricas disponibles (AdvancedAnalytics.jsx):
+    - Ventas totales por período
+    - Número de pedidos
+    - Ticket medio
+    - Tasa de conversión
+[✓] Productos más vendidos (top 10)
+[✓] Ingresos por categoría
+[✓] Gráficos interactivos (Recharts):
+    - Líneas de tendencia
+    - Barras comparativas
+    - Pie charts de distribución
+[✓] Comparativa temporal (día/semana/mes/año vs período anterior)
+[✓] Exportación de reportes a CSV/Excel
+[✓] Datos de usuarios:
+    - Nuevos registros
+    - Usuarios activos
+    - Retención
+
+ENDPOINTS API:
+  GET    /api/analytics/sales          - Datos de ventas
+  GET    /api/analytics/products       - Productos más vendidos
+  GET    /api/analytics/categories     - Ventas por categoría
+  GET    /api/analytics/users          - Métricas de usuarios
+  GET    /api/analytics/overview       - Resumen general
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  14. AUTOMATIZACIÓN (CRON JOBS)                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Tareas programadas (jobs/scheduledJobs.js):
+
+    • Carrito abandonado (cada hora)
+      - Detecta carritos sin actividad > 24h
+      - Envía email recordatorio al usuario
+      - Solo una vez por carrito
+
+    • Monitor de precios (diario a medianoche)
+      - Rastrea cambios de precio
+      - Notifica a usuarios con producto en wishlist
+      - Genera historial de precios
+
+    • Recordatorio wishlist (domingos 10AM)
+      - Email con productos guardados
+      - Incluye ofertas activas
+      - Solo si hay productos
+
+    • Newsletter semanal (viernes 10AM)
+      - Productos destacados
+      - Ofertas de la semana
+      - Novedades
+
+TECNOLOGÍA: node-cron
+CONFIGURACIÓN: Variables de entorno para habilitar/deshabilitar
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  15. MARKETING Y SOCIAL                                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Botones de compartir (ShareButtons.jsx):
+    - Twitter/X
+    - Facebook
+    - WhatsApp
+    - Email
+    - Copiar enlace al portapapeles
+[✓] Web Share API nativo (móviles compatibles)
+[✓] Newsletter y suscriptores:
+    - Formulario de suscripción en footer
+    - Confirmación por email
+    - Gestión de suscriptores (admin)
+[✓] Campañas de email:
+    - Anuncio de nuevos productos
+    - Promociones con código de cupón
+    - Envío programado o inmediato
+[✓] API para envío manual de campañas
+[✓] Templates de email personalizados (emailTemplates.js):
+    - Diseño responsive
+    - Branding configurable
+    - Footer con enlaces legales
+
+ENDPOINTS API:
+  POST   /api/newsletter/subscribe     - Suscribirse
+  DELETE /api/newsletter/unsubscribe   - Darse de baja
+  GET    /api/newsletter/subscribers   - Lista de suscriptores (admin)
+  POST   /api/marketing/campaign       - Enviar campaña (admin)
+
+MODELO Subscriber:
+  - email: String (único)
+  - isActive: Boolean
+  - subscribedAt: Date
+  - source: 'footer' | 'checkout' | 'popup'
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  16. INTERNACIONALIZACIÓN (i18n)                                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] MULTI-IDIOMA (react-i18next):
+    - Español (es.json) - predeterminado
+    - English (en.json)
+    - Detección automática del navegador
+    - Selector de idioma en navbar
+    - Persistencia en localStorage
+    - Traducciones en archivos JSON
+
+[✓] MULTI-MONEDA (CurrencyContext.jsx):
+    - EUR (€) - predeterminada
+    - USD ($)
+    - GBP (£)
+    - Conversión automática de precios
+    - Selector de moneda
+    - Componente Price.jsx reutilizable
+    - Tasas de cambio configurables
+
+[✓] ENVÍO POR UBICACIÓN (config/shipping.js):
+    - Zonas:
+      • España peninsular (envío estándar/express)
+      • Islas Canarias/Baleares
+      • Europa (EU)
+      • Internacional (resto del mundo)
+    - Métodos:
+      • Estándar (3-5 días)
+      • Express (1-2 días)
+    - Envío gratis:
+      • Sobre umbral configurable (50€ España)
+      • Promociones especiales
+
+ARCHIVOS:
+  client/src/i18n/index.js          - Configuración i18next
+  client/src/i18n/locales/es.json   - Traducciones español
+  client/src/i18n/locales/en.json   - Traducciones inglés
+  client/src/config/shipping.js     - Zonas y precios de envío
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  17. OPTIMIZACIÓN Y RENDIMIENTO                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] FRONTEND:
+    - Code Splitting con React.lazy (17 páginas lazy-loaded)
+    - Lazy loading de imágenes (LazyImage.jsx con Intersection Observer)
+    - Skeleton loading durante carga (ProductSkeleton.jsx)
+
+[✓] BACKEND:
+    - API Caching (node-cache middleware):
+      • Lista productos: 2 min
+      • Producto individual: 5 min
+      • Invalidación automática en CRUD
+    - Compresión Gzip (compression middleware)
+    - Optimización de imágenes (Sharp):
+      • Conversión a WebP
+      • Generación de thumbnails
+      • Tamaños responsive (sm, md, lg)
+
+[✓] SEGURIDAD Y LÍMITES:
+    - Rate limiting global (100 req/15min por IP)
+    - Security headers (Helmet):
+      • X-Frame-Options
+      • X-XSS-Protection
+      • X-Content-Type-Options
+      • Content-Security-Policy básico
+    - Cache de archivos estáticos (1 año, immutable)
+    - CORS configurado
+
+ARCHIVOS:
+  server/middleware/cacheMiddleware.js
+  server/services/imageOptimizer.js
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  18. SEO                                                                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] URLs SEO-friendly con slugs automáticos
+[✓] Meta tags dinámicos (SEO.jsx):
+    - Title
+    - Description
+    - Keywords
+    - Canonical URL
+[✓] Open Graph (Facebook, LinkedIn):
+    - og:title, og:description, og:image
+    - og:type, og:url
+[✓] Twitter Cards:
+    - twitter:card, twitter:title
+    - twitter:description, twitter:image
+[✓] JSON-LD Structured Data (Schema.org):
+    - Productos (Product)
+    - Organización
+    - Breadcrumbs
+[✓] Sitemap XML dinámico:
+    - /api/sitemap - Generado automáticamente
+    - Incluye todas las páginas y productos
+    - Prioridades por tipo de página
+[✓] Robots.txt:
+    - /api/sitemap/robots
+    - Configuración de crawlers
+
+ENDPOINTS API:
+  GET    /api/sitemap              - Sitemap XML
+  GET    /api/sitemap/robots       - Robots.txt
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  19. UI/UX                                                                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] Diseño responsive (mobile-first)
+[✓] Modo oscuro/claro (ThemeContext.jsx):
+    - Toggle en navbar (DarkModeToggle.jsx)
+    - Persistencia en localStorage
+    - Detección de preferencia del sistema
+[✓] Animaciones y transiciones:
+    - Hover effects en productos
+    - Fade-in de imágenes
+    - Transiciones de página suaves
+[✓] Skeleton loading (ProductSkeleton.jsx)
+[✓] Toast notifications (react-hot-toast):
+    - Éxito, error, info
+    - Posicionamiento configurable
+    - Auto-dismiss
+[✓] Modales interactivos:
+    - QuickViewModal.jsx
+    - ProductFormModal.jsx
+    - OrderDetailsModal.jsx
+[✓] Formularios con validación en tiempo real
+[✓] Iconos Lucide React (consistentes y ligeros)
+[✓] Componentes reutilizables:
+    - Rating.jsx
+    - SearchBox.jsx
+    - Price.jsx
+    - Breadcrumbs.jsx
+    - Paginate.jsx
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  20. TESTING AUTOMATIZADO                                                    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[✓] BACKEND INTEGRATION TESTS (Jest + Supertest):
+    - Base de datos aislada (MongoMemoryServer)
+    - Auth tests: 13 tests
+      • Registro con validación
+      • Login correcto/incorrecto
+      • Rutas protegidas
+    - Products tests: 5 tests
+      • Listado y paginación
+      • Filtros
+      • Seguridad (solo admin crea)
+    - Cart tests: 7 tests
+      • Autenticación requerida
+      • Límites de stock
+      • Operaciones CRUD
+    - Total: 25+ tests pasando
+
+[✓] E2E TESTS (Cypress):
+    - Configuración para React + Vite
+    - Happy Path: flujo completo de compra
+    - Comandos personalizados (login, addToCart, etc.)
+
+[✓] CI/CD PIPELINE (GitHub Actions):
+    - Archivo: .github/workflows/ci.yml
+    - Ejecución en push/PR a main
+    - Jobs:
+      1. Backend tests
+      2. E2E tests
+      3. Build check
+    - Artifacts: screenshots, videos, coverage
+
+COMANDOS:
+  cd server && npm test              # Backend tests
+  cd server && npm run test:watch    # Watch mode
+  cd server && npm run test:coverage # Con cobertura
+  cd client && npm run cy:open       # Cypress interactivo
+  cd client && npm run cy:run        # Cypress headless
+
+ARCHIVOS:
+  server/tests/setup.js
+  server/tests/auth.test.js
+  server/tests/products.test.js
+  server/tests/cart.test.js
+  client/cypress/e2e/
+  client/cypress.config.js
+  .github/workflows/ci.yml
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  21. STACK TECNOLÓGICO                                                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ FRONTEND (client/)                                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ • React 18 + Vite                                                           │
+│ • React Router DOM v6                                                       │
+│ • Context API (7 contexts)                                                  │
+│ • TailwindCSS                                                               │
+│ • Lucide React (iconos)                                                     │
+│ • react-hot-toast (notificaciones)                                          │
+│ • react-i18next (internacionalización)                                      │
+│ • Recharts (gráficos)                                                       │
+│ • Axios (HTTP client)                                                       │
+│ • @stripe/react-stripe-js (pagos)                                           │
+│ • Cypress (E2E testing)                                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ BACKEND (server/)                                                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ • Node.js + Express                                                         │
+│ • MongoDB + Mongoose                                                        │
+│ • JWT Authentication (jsonwebtoken)                                         │
+│ • Cloudinary (imágenes en la nube)                                          │
+│ • Nodemailer (emails)                                                       │
+│ • Stripe SDK (pagos)                                                        │
+│ • node-cron (tareas programadas)                                            │
+│ • node-cache (caché en memoria)                                             │
+│ • Sharp (optimización de imágenes)                                          │
+│ • compression (gzip)                                                        │
+│ • express-rate-limit (rate limiting)                                        │
+│ • helmet (security headers)                                                 │
+│ • Jest + Supertest (testing)                                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ DOCKER                                                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ • Docker + Docker Compose                                                    │
+│ • Nginx (reverse proxy + static files)                                      │
+│ • MongoDB 7.0 (containerized)                                               │
+│ • Node.js 20 Alpine images                                                  │
+│ • Multi-stage builds                                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+ESTADÍSTICAS DEL CÓDIGO:
+  • Componentes React: 32
+  • Páginas: 17
+  • Contexts: 7
+  • Rutas API: 15
+  • Modelos MongoDB: 11
+  • Servicios: 7
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  22. ESTRUCTURA DEL PROYECTO                                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+e-commerce/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                      # CI/CD Pipeline
+│
+├── client/                             # FRONTEND
+│   ├── src/
+│   │   ├── components/                 # 32 componentes reutilizables
+│   │   │   ├── AdminOrderList.jsx
+│   │   │   ├── AdminReviews.jsx
+│   │   │   ├── AdvancedAnalytics.jsx
+│   │   │   ├── Breadcrumbs.jsx
+│   │   │   ├── CheckoutForm.jsx
+│   │   │   ├── CouponManagement.jsx
+│   │   │   ├── DarkModeToggle.jsx
+│   │   │   ├── Footer.jsx
+│   │   │   ├── ImageGallery.jsx
+│   │   │   ├── InventoryManagement.jsx
+│   │   │   ├── LanguageCurrencySelector.jsx
+│   │   │   ├── LazyImage.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── NotificationBell.jsx
+│   │   │   ├── OrderDetailsModal.jsx
+│   │   │   ├── Paginate.jsx
+│   │   │   ├── Price.jsx
+│   │   │   ├── ProductBadge.jsx
+│   │   │   ├── ProductCard.jsx
+│   │   │   ├── ProductFilters.jsx
+│   │   │   ├── ProductFormModal.jsx
+│   │   │   ├── ProductList.jsx
+│   │   │   ├── ProductSkeleton.jsx
+│   │   │   ├── ProductSort.jsx
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   ├── QuickViewModal.jsx
+│   │   │   ├── Rating.jsx
+│   │   │   ├── RelatedProducts.jsx
+│   │   │   ├── SEO.jsx
+│   │   │   ├── SearchBox.jsx
+│   │   │   ├── ShareButtons.jsx
+│   │   │   └── WishlistSelector.jsx
+│   │   │
+│   │   ├── pages/                      # 17 páginas
+│   │   │   ├── AdminDashboard.jsx
+│   │   │   ├── CartPage.jsx
+│   │   │   ├── CheckoutPage.jsx
+│   │   │   ├── ComparePage.jsx
+│   │   │   ├── ForgotPasswordPage.jsx
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── NotificationCenter.jsx
+│   │   │   ├── OrderDetailsPage.jsx
+│   │   │   ├── OrderSuccessPage.jsx
+│   │   │   ├── OrderTrackingPage.jsx
+│   │   │   ├── ProductDetailsPage.jsx
+│   │   │   ├── ProfilePage.jsx
+│   │   │   ├── RegisterPage.jsx
+│   │   │   ├── ResetPasswordPage.jsx
+│   │   │   ├── SearchPage.jsx
+│   │   │   ├── SharedWishlistPage.jsx
+│   │   │   └── WishlistPage.jsx
+│   │   │
+│   │   ├── context/                    # 7 contexts
+│   │   │   ├── AuthContext.jsx
+│   │   │   ├── CartContext.jsx
+│   │   │   ├── CompareContext.jsx
+│   │   │   ├── CurrencyContext.jsx
+│   │   │   ├── NotificationContext.jsx
+│   │   │   ├── ThemeContext.jsx
+│   │   │   └── WishlistContext.jsx
+│   │   │
+│   │   ├── config/
+│   │   │   ├── branding.js             # Sistema white-label
+│   │   │   └── shipping.js             # Zonas y precios de envío
+│   │   │
+│   │   ├── i18n/
+│   │   │   ├── index.js
+│   │   │   └── locales/
+│   │   │       ├── en.json
+│   │   │       └── es.json
+│   │   │
+│   │   ├── hooks/
+│   │   │   └── usePushNotifications.js
+│   │   │
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   ├── index.css
+│   │   └── main.jsx
+│   │
+│   ├── cypress/                        # Tests E2E
+│   │   ├── e2e/
+│   │   └── support/
+│   │
+│   ├── public/
+│   ├── index.html
+│   ├── package.json
+│   ├── tailwind.config.js
+│   ├── vite.config.js
+│   └── cypress.config.js
+│
+├── server/                             # BACKEND
+│   ├── routes/                         # 15 rutas API
+│   │   ├── analytics.js
+│   │   ├── auth.js
+│   │   ├── cart.js
+│   │   ├── coupons.js
+│   │   ├── inventory.js
+│   │   ├── marketing.js
+│   │   ├── newsletter.js
+│   │   ├── notifications.js
+│   │   ├── orders.js
+│   │   ├── payment.js
+│   │   ├── products.js
+│   │   ├── sitemap.js
+│   │   ├── stockAlerts.js
+│   │   ├── upload.js
+│   │   └── wishlist.js
+│   │
+│   ├── models/                         # 11 modelos MongoDB
+│   │   ├── Cart.js
+│   │   ├── Coupon.js
+│   │   ├── Notification.js
+│   │   ├── Order.js
+│   │   ├── Product.js
+│   │   ├── PushSubscription.js
+│   │   ├── StockAlert.js
+│   │   ├── StockMovement.js
+│   │   ├── Subscriber.js
+│   │   ├── User.js
+│   │   └── Wishlist.js
+│   │
+│   ├── services/                       # 7 servicios
+│   │   ├── analyticsService.js
+│   │   ├── emailTemplates.js
+│   │   ├── exportService.js
+│   │   ├── imageOptimizer.js
+│   │   ├── inventoryService.js
+│   │   ├── notificationService.js
+│   │   └── stockNotificationService.js
+│   │
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   └── cacheMiddleware.js
+│   │
+│   ├── jobs/
+│   │   └── scheduledJobs.js
+│   │
+│   ├── tests/
+│   │   ├── setup.js
+│   │   ├── app.js
+│   │   ├── auth.test.js
+│   │   ├── cart.test.js
+│   │   └── products.test.js
+│   │
+│   ├── utils/
+│   │   └── sendEmail.js
+│   │
+│   ├── config/
+│   │   └── db.js
+│   │
+│   ├── data/
+│   │   └── [seeds y datos]
+│   │
+│   ├── server.js
+│   ├── package.json
+│   ├── .env.example
+│   └── Procfile                        # Deploy Heroku
+│
+├── ADMIN-MANUAL.md                     # Guía de administración
+├── CLIENT-DELIVERY-CHECKLIST.md        # Checklist para clientes
+├── DEPLOYMENT.md                       # Guía de despliegue
+├── DOCKER-GUIDE.md                     # Guía completa de Docker
+├── DOCKER-README.md                    # README de Docker
+├── DOCKER-VERIFICATION.md              # Verificación de Docker
+├── DOCS-INDEX.md                       # Índice de documentación
+├── IMPLEMENTATION-SUMMARY.md           # Resumen de implementación
+├── README.md                           # Documentación principal
+├── START-HERE.md                       # Guía de inicio rápido
+├── design.txt                          # Guía de diseño visual
+├── docker-compose.yml                  # Orquestación de contenedores
+├── .env.docker.example                 # Variables de entorno Docker
+└── functionalities.txt                 # Este archivo
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  23. CONFIGURACIÓN Y VARIABLES DE ENTORNO                                    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+ARCHIVO: server/.env (ver server/.env.example para plantilla)
+
+───────────────────────────────────────────────────────────────────────────────
+VARIABLES OBLIGATORIAS
+───────────────────────────────────────────────────────────────────────────────
+
+# Base de datos
+MONGO_URI=mongodb+srv://usuario:password@cluster.mongodb.net/dbname
+
+# Autenticación
+JWT_SECRET=tu_secreto_jwt_muy_seguro_minimo_32_caracteres
+
+# URLs
+CLIENT_URL=http://localhost:5173
+SERVER_URL=http://localhost:5000
+
+# Stripe (Pagos)
+STRIPE_SECRET_KEY=sk_test_xxxx
+STRIPE_PUBLISHABLE_KEY=pk_test_xxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxx
+
+# Cloudinary (Imágenes)
+CLOUDINARY_CLOUD_NAME=tu_cloud_name
+CLOUDINARY_API_KEY=tu_api_key
+CLOUDINARY_API_SECRET=tu_api_secret
+
+# Email (Nodemailer)
+EMAIL_SERVICE=gmail
+EMAIL_USER=tu_email@gmail.com
+EMAIL_PASS=tu_app_password
+
+───────────────────────────────────────────────────────────────────────────────
+VARIABLES OPCIONALES
+───────────────────────────────────────────────────────────────────────────────
+
+# Puerto (default: 5000)
+PORT=5000
+
+# Entorno
+NODE_ENV=development
+
+# Tasas de cambio (default: EUR base)
+EXCHANGE_RATE_USD=1.10
+EXCHANGE_RATE_GBP=0.86
+
+# Envío gratis umbral (EUR)
+FREE_SHIPPING_THRESHOLD=50
+
+# Rate limiting (requests por ventana)
+RATE_LIMIT_MAX=100
+RATE_LIMIT_WINDOW_MS=900000
+
+# Caché TTL (segundos)
+CACHE_TTL_PRODUCTS=120
+CACHE_TTL_PRODUCT=300
+
+# Cron jobs habilitados
+ENABLE_ABANDONED_CART_JOB=true
+ENABLE_PRICE_MONITOR_JOB=true
+ENABLE_WISHLIST_REMINDER_JOB=true
+ENABLE_NEWSLETTER_JOB=true
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  24. COMANDOS DE DESARROLLO                                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+───────────────────────────────────────────────────────────────────────────────
+SERVIDOR (desde /server)
+───────────────────────────────────────────────────────────────────────────────
+npm install                 # Instalar dependencias
+npm run dev                 # Iniciar con nodemon (desarrollo)
+npm start                   # Iniciar en producción
+npm test                    # Ejecutar tests
+npm run test:watch          # Tests en modo watch
+npm run test:coverage       # Tests con cobertura
+
+───────────────────────────────────────────────────────────────────────────────
+CLIENTE (desde /client)
+───────────────────────────────────────────────────────────────────────────────
+npm install                 # Instalar dependencias
+npm run dev                 # Iniciar Vite dev server
+npm run build               # Build de producción
+npm run preview             # Preview del build
+npm run cy:open             # Cypress interactivo
+npm run cy:run              # Cypress headless
+
+───────────────────────────────────────────────────────────────────────────────
+SCRIPTS DE UTILIDAD (desde /server)
+───────────────────────────────────────────────────────────────────────────────
+node seed.js                # Poblar BD con datos de prueba
+node seedProducts.js        # Solo productos de prueba
+node makeAdmin.js email@x   # Hacer admin a un usuario
+node migrateSlug.js         # Migrar slugs existentes
+node migrateProducts.js     # Migrar estructura de productos
+node migrateWishlist.js     # Migrar wishlists
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  25. SISTEMA DE BRANDING (WHITE-LABEL)                                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+El proyecto incluye un sistema centralizado de branding que permite personalizar
+la tienda para diferentes clientes sin modificar el código fuente.
+
+ARCHIVO: client/src/config/branding.js
+
+CONFIGURACIÓN DISPONIBLE:
+
+const branding = {
+  // Identidad
+  name: "LUXETHREAD",
+  tagline: "Curated Fashion. Timeless Style.",
+  logo: null, // URL o null para texto
+  
+  // Colores principales
+  colors: {
+    primary: "#1A1A1A",
+    primaryHover: "#000000",
+    accent: "#D4A853",
+    // ... más colores
+  },
+  
+  // Tipografía
+  fonts: {
+    heading: "'Outfit', sans-serif",
+    body: "'Inter', sans-serif",
+  },
+  
+  // Contacto
+  contact: {
+    email: "hello@luxethread.com",
+    phone: "+34 900 000 000",
+    address: "Madrid, España",
+  },
+  
+  // Redes sociales
+  social: {
+    instagram: "https://instagram.com/luxethread",
+    twitter: "https://twitter.com/luxethread",
+    facebook: "https://facebook.com/luxethread",
+  },
+  
+  // Legal
+  legal: {
+    companyName: "LuxeThread S.L.",
+    vatNumber: "B12345678",
+  },
+};
+
+CÓMO USAR:
+  import { branding } from '../config/branding';
+  
+  <h1>{branding.name}</h1>
+  <p style={{color: branding.colors.primary}}>{branding.tagline}</p>
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  26. DOCKER Y CONTENEDORIZACIÓN                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+El proyecto incluye una implementación completa de Docker para desarrollo,
+testing y producción. Permite desplegar toda la aplicación con un solo comando.
+
+───────────────────────────────────────────────────────────────────────────────
+ARQUITECTURA DOCKER
+───────────────────────────────────────────────────────────────────────────────
+
+[✓] 3 Servicios containerizados:
+    - mongo: Base de datos MongoDB 7.0
+    - server: Backend Node.js 20 + Express
+    - client: Frontend React + Nginx
+
+[✓] Red interna Docker (luxethread-network)
+[✓] Volúmenes persistentes para datos
+[✓] Health checks en todos los servicios
+[✓] Dependencias entre servicios configuradas
+
+───────────────────────────────────────────────────────────────────────────────
+ARCHIVOS DOCKER
+───────────────────────────────────────────────────────────────────────────────
+
+docker-compose.yml              # Orquestación principal
+.env.docker.example             # Variables de entorno (plantilla)
+client/Dockerfile               # Build multi-stage: Node 20 + Nginx
+client/.dockerignore            # Exclusiones de build
+client/nginx.conf               # Configuración Nginx completa
+server/Dockerfile               # Node 20 Alpine optimizado
+server/.dockerignore            # Exclusiones de build
+
+───────────────────────────────────────────────────────────────────────────────
+DOCKERFILES
+───────────────────────────────────────────────────────────────────────────────
+
+[✓] CLIENT (Multi-stage build):
+    - Stage 1: Node 20 Alpine - Build de React con Vite
+    - Stage 2: Nginx Alpine - Servidor de archivos estáticos
+    - ARG VITE_API_URL para configuración en build
+    - Health check HTTP
+    - Usuario no-root para seguridad
+
+[✓] SERVER:
+    - Node 20 Alpine (imagen ligera)
+    - npm ci --only=production (solo dependencias de producción)
+    - Usuario no-root (nodeuser)
+    - Health check HTTP
+    - Volumen para uploads
+
+───────────────────────────────────────────────────────────────────────────────
+NGINX (REVERSE PROXY)
+───────────────────────────────────────────────────────────────────────────────
+
+[✓] Proxy reverso /api → http://server:5000
+[✓] Proxy /uploads para archivos subidos
+[✓] Compresión Gzip habilitada
+[✓] Caching de assets estáticos (1 año)
+[✓] SPA routing (try_files para React Router)
+[✓] Rate limiting para API (10 req/s, burst 20)
+[✓] Headers de seguridad:
+    - X-Frame-Options: SAMEORIGIN
+    - X-Content-Type-Options: nosniff
+    - X-XSS-Protection: 1; mode=block
+    - Referrer-Policy: strict-origin-when-cross-origin
+[✓] Soporte WebSockets
+
+───────────────────────────────────────────────────────────────────────────────
+COMANDOS DOCKER
+───────────────────────────────────────────────────────────────────────────────
+
+# Configuración inicial
+cp .env.docker.example .env         # Crear archivo de variables
+# Editar .env con credenciales reales
+
+# Levantar servicios
+docker-compose up --build           # Build y arrancar (foreground)
+docker-compose up -d --build        # Build y arrancar (background)
+
+# Ver estado
+docker-compose ps                   # Estado de contenedores
+docker-compose logs -f              # Ver logs en tiempo real
+docker-compose logs -f server       # Logs solo del backend
+
+# Detener servicios
+docker-compose down                 # Detener contenedores
+docker-compose down -v              # Detener y eliminar volúmenes (CUIDADO)
+
+# Reconstruir
+docker-compose build --no-cache     # Rebuild desde cero
+
+# Ejecutar comandos en contenedor
+docker exec -it luxethread-server sh    # Shell en backend
+docker exec -it luxethread-mongo mongosh # MongoDB shell
+
+───────────────────────────────────────────────────────────────────────────────
+VARIABLES DE ENTORNO DOCKER (.env)
+───────────────────────────────────────────────────────────────────────────────
+
+# MongoDB
+MONGO_ROOT_USERNAME=admin
+MONGO_ROOT_PASSWORD=tu_password_seguro
+
+# Server
+SERVER_PORT=5000
+JWT_SECRET=tu_jwt_secret_muy_largo
+JWT_REFRESH_SECRET=tu_refresh_secret
+
+# Client
+CLIENT_PORT=80
+CLIENT_URL=http://localhost
+VITE_API_URL=/api
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_xxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxx
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=xxx
+CLOUDINARY_API_KEY=xxx
+CLOUDINARY_API_SECRET=xxx
+
+# Email
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=tu@email.com
+EMAIL_PASS=tu_app_password
+EMAIL_FROM=LuxeThread <noreply@luxethread.com>
+
+───────────────────────────────────────────────────────────────────────────────
+API URL CENTRALIZADA
+───────────────────────────────────────────────────────────────────────────────
+
+[✓] Archivo: client/src/config/api.js
+[✓] Detecta automáticamente el entorno:
+    - Docker/Producción: usa VITE_API_URL (/api)
+    - Desarrollo local: usa http://localhost:5000/api
+[✓] Todas las llamadas API refactorizadas para usar API_URL
+
+DOCUMENTACIÓN:
+  - DOCKER-GUIDE.md         # Guía completa de Docker
+  - DOCKER-README.md        # Guía rápida
+  - DOCKER-VERIFICATION.md  # Checklist de verificación
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  27. GUÍA DE DESPLIEGUE                                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Ver DEPLOYMENT.md para guía completa. Resumen:
+
+BACKEND (Heroku / Railway / Render):
+  1. Crear aplicación
+  2. Conectar repositorio git
+  3. Configurar variables de entorno
+  4. Deploy automático o manual
+
+FRONTEND (Vercel / Netlify):
+  1. Conectar repositorio
+  2. Configurar:
+     - Build command: npm run build
+     - Output directory: dist
+     - Root directory: client
+  3. Añadir variable: VITE_API_URL = URL_del_backend
+  4. Deploy
+
+MONGODB ATLAS:
+  1. Crear cluster gratuito
+  2. Añadir usuario de BD
+  3. Whitelist IPs (o 0.0.0.0/0 para cualquiera)
+  4. Copiar connection string a MONGO_URI
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  27. POSIBLES IMPLEMENTACIONES FUTURAS                                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+───────────────────────────────────────────────────────────────────────────────
+ALTA PRIORIDAD
+───────────────────────────────────────────────────────────────────────────────
+[ ] PWA (Progressive Web App)
+    - Service Worker para offline
+    - Instalable en móvil
+    - Push notifications nativas
+
+[ ] Búsqueda avanzada con Elasticsearch/Algolia
+    - Búsqueda full-text
+    - Autocompletado
+    - Sugerencias inteligentes
+
+[ ] Chat en vivo / Chatbot
+    - Soporte en tiempo real
+    - Integración WhatsApp Business
+
+───────────────────────────────────────────────────────────────────────────────
+MEDIA PRIORIDAD
+───────────────────────────────────────────────────────────────────────────────
+[ ] Programa de fidelización / Puntos
+[ ] Recomendaciones personalizadas (ML)
+[ ] Sistema de afiliados
+[ ] Suscripción a productos
+[ ] A/B Testing
+[ ] Reviews con fotos/videos
+
+───────────────────────────────────────────────────────────────────────────────
+BAJA PRIORIDAD / NICE TO HAVE
+───────────────────────────────────────────────────────────────────────────────
+[ ] Realidad Aumentada (AR)
+[ ] Social Commerce (Instagram Shopping)
+[ ] Marketplace multi-vendedor
+[ ] App móvil nativa (React Native)
+[ ] Integración ERP/CRM
+[ ] Dropshipping
+
+───────────────────────────────────────────────────────────────────────────────
+MEJORAS TÉCNICAS
+───────────────────────────────────────────────────────────────────────────────
+[ ] GraphQL
+[ ] Redis para caché distribuida
+[ ] Docker + Kubernetes
+[ ] CDN para assets (Cloudflare/AWS CloudFront)
+[ ] WebSockets para notificaciones en tiempo real
+
+================================================================================
+                               FIN DEL DOCUMENTO
+================================================================================
+
+        Documentación generada para el proyecto LuxeThread E-Commerce
+                    Versión: 1.0 | Fecha: 13 de Diciembre, 2025
+
+================================================================================

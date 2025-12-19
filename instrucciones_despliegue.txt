@@ -1,0 +1,62 @@
+PASOS PARA PUBLICAR TU E-COMMERCE EN LÍNEA (GRATIS)
+=====================================================
+
+0. DESCRIPCIÓN RECOMENDADA PARA GITHUB (Copia y pega):
+----------------------------------------------------
+"E-commerce Full Stack profesional con React, Node.js y MongoDB. Incluye panel admin, pagos Stripe, gestión de inventario, cupones y multi-idioma. Optimizado para despliegue gratuito en Render y Vercel. Una base sólida y escalable ideal para proyectos comerciales y venta a clientes finales."
+
+1. PUBLICAR EN GITHUB (Control de Versiones)
+------------------------------------------
+GitHub es esencial para guardar tu código y conectar con las plataformas de despliegue.
+
+   A. Crear el repositorio:
+      - Ve a github.com y crea un nuevo repositorio llamado "e-commerce".
+      - NO marques las casillas de README ni .gitignore (ya los tienes en tu proyecto).
+
+   B. Subir tu código actual:
+      - Abre una terminal en la carpeta raíz de tu proyecto ("e-commerce").
+      - Ejecuta los siguientes comandos:
+        git init
+        git add .
+        git commit -m "Versión inicial lista para despliegue"
+        git branch -M main
+        git remote add origin https://github.com/TU_USUARIO/e-commerce.git
+        git push -u origin main
+
+2. LAS MEJORES PLATAFORMAS GRATUITAS PARA TU PROYECTO
+----------------------------------------------------
+Para un proyecto Full Stack (Frontend + Backend + Base de Datos), la mejor combinación gratuita y estable hoy en día es:
+
+   A. BASE DE DATOS: MongoDB Atlas (Plan M0 Free)
+      - Por qué: Es el estándar de la industria y ofrece 512MB gratis para siempre.
+      - Qué hacer: Crea un Cluster gratuito, guarda la "Connection String" y añade tu IP a la lista blanca (o 0.0.0.0/0).
+
+   B. BACKEND: Render (Web Service Free Tier)
+      - Por qué: A diferencia de Railway (que tiene un límite de crédito mensual), Render ofrece un nivel gratuito permanente.
+      - Qué hacer:
+        1. Crea cuenta en Render.com vinculada a tu GitHub.
+        2. "New" -> "Web Service".
+        3. Selecciona tu repositorio "e-commerce".
+        4. Root Directory: server
+        5. Build Command: npm install
+        6. Start Command: node server.js
+        7. En "Advanced" -> "Environment Variables", añade las de tu .env (MONGODB_URI, JWT_SECRET, etc.).
+
+   C. FRONTEND: Vercel (Hobby Plan)
+      - Por qué: Es el más rápido y fácil para aplicaciones Vite/React.
+      - Qué hacer:
+        1. Crea cuenta en Vercel.com vinculada a tu GitHub.
+        2. "Add New" -> "Project".
+        3. Importa tu repositorio.
+        4. Root Directory: client
+        5. Framework: Vite.
+        6. En Environment Variables, añade: VITE_API_URL con la dirección que te dio Render para el backend.
+
+3. RESUMEN DE ENLACES IMPORTANTES
+---------------------------------
+- Repositorio: https://github.com/TU_USUARIO/e-commerce
+- DB: https://cloud.mongodb.com
+- Backend: https://render.com
+- Frontend: https://vercel.com
+
+NOTA: Tienes una guía mucho más detallada en la carpeta docs/DEPLOYMENT.md con todos los pasos técnicos para configurar Render y Vercel.

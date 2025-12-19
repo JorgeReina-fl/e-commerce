@@ -1,0 +1,118 @@
+# ============================================
+# E-COMMERCE - GITIGNORE
+# Archivos que NO deben subirse a Git
+# ============================================
+
+# ==========================================
+# Variables de Entorno (CRÍTICO - Seguridad)
+# ==========================================
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.docker
+*.env
+
+# Excepciones: archivos de ejemplo
+!.env.example
+!.env.docker.example
+!server/.env.example
+
+# ==========================================
+# Node Modules
+# ==========================================
+node_modules/
+*/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ==========================================
+# Logs
+# ==========================================
+logs/
+*.log
+error.log
+error_log.txt
+
+# ==========================================
+# Sistema Operativo
+# ==========================================
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# ==========================================
+# IDEs y Editores
+# ==========================================
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains (WebStorm, IntelliJ, etc.)
+.idea/
+*.iml
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ==========================================
+# Build y Dist
+# ==========================================
+dist/
+build/
+*.tsbuildinfo
+
+# ==========================================
+# Docker (Opcional - Datos locales)
+# ==========================================
+# Volúmenes de Docker (si los tienes localmente)
+# docker-volumes/
+
+# ==========================================
+# Uploads y Archivos Temporales
+# ==========================================
+uploads/
+!uploads/.gitkeep
+tmp/
+temp/
+*.tmp
+
+# ==========================================
+# Testing
+# ==========================================
+coverage/
+.nyc_output/
+test-results/
+
+# ==========================================
+# Otros
+# ==========================================
+# Archivos de backup
+*.bak
+*.backup
+
+# Certificados SSL (si los tienes)
+*.pem
+*.key
+*.crt
+
+# Base de datos local
+*.sqlite
+*.db

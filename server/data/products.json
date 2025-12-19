@@ -1,0 +1,137 @@
+[
+    {
+        "name": "Chaqueta Bomber Minimalista",
+        "description": "Chaqueta ligera de estilo urbano con acabado mate y cremalleras ocultas. Perfecta para el entretiempo, combina funcionalidad con un diseño sobrio y elegante.",
+        "price": 89.99,
+        "category": "Hombre",
+        "sizes": [
+            "S",
+            "M",
+            "L",
+            "XL"
+        ],
+        "image": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000&auto=format&fit=crop",
+        "stock": 15
+    },
+    {
+        "name": "Vestido Midi Floral",
+        "description": "Vestido de corte fluido con estampado floral suave. Fabricado en viscosa sostenible, ideal para eventos de día o salidas casuales de verano.",
+        "price": 59.50,
+        "category": "Mujer",
+        "sizes": [
+            "XS",
+            "S",
+            "M",
+            "L"
+        ],
+        "image": "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?q=80&w=1000&auto=format&fit=crop",
+        "stock": 22
+    },
+    {
+        "name": "Camiseta Básica Premium (Pack x3)",
+        "description": "El básico definitivo. Algodón orgánico 100% de alto gramaje que no pierde la forma. Incluye colores Blanco, Negro y Gris Jaspeado.",
+        "price": 45.00,
+        "category": "Hombre",
+        "sizes": [
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL"
+        ],
+        "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1000&auto=format&fit=crop",
+        "stock": 50
+    },
+    {
+        "name": "Blazer Oversize Beige",
+        "description": "Americana de corte relajado y hombros estructurados. Una pieza versátil que eleva cualquier look de oficina o fin de semana.",
+        "price": 120.00,
+        "category": "Mujer",
+        "sizes": [
+            "S",
+            "M",
+            "L"
+        ],
+        "image": "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?q=80&w=1000&auto=format&fit=crop",
+        "stock": 10
+    },
+    {
+        "name": "Jeans Slim Fit Vintage",
+        "description": "Vaqueros con lavado a la piedra y ligeros desgastes. Denim elástico para mayor comodidad sin sacrificar el estilo auténtico.",
+        "price": 65.99,
+        "category": "Hombre",
+        "sizes": [
+            "30",
+            "32",
+            "34",
+            "36"
+        ],
+        "image": "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?q=80&w=1000&auto=format&fit=crop",
+        "stock": 30
+    },
+    {
+        "name": "Bolso Tote de Cuero Vegano",
+        "description": "Espacioso, resistente y ético. Este bolso tote en color camel es el compañero perfecto para llevar tu portátil y esenciales diarios.",
+        "price": 79.90,
+        "category": "Accesorios",
+        "sizes": [
+            "Única"
+        ],
+        "image": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop",
+        "stock": 18
+    },
+    {
+        "name": "Sudadera Hoodie Streetwear",
+        "description": "Sudadera con capucha de corte amplio en color negro profundo. Bolsillo canguro y cordones reforzados. Estilo urbano atemporal.",
+        "price": 55.00,
+        "category": "Hombre",
+        "sizes": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "image": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1000&auto=format&fit=crop",
+        "stock": 25
+    },
+    {
+        "name": "Falda Plisada Metalizada",
+        "description": "Falda midi con acabado metalizado sutil. Cintura elástica cómoda. La prenda perfecta para brillar en cenas y fiestas.",
+        "price": 49.95,
+        "category": "Mujer",
+        "sizes": [
+            "S",
+            "M",
+            "L"
+        ],
+        "image": "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?q=80&w=1000&auto=format&fit=crop",
+        "stock": 12
+    },
+    {
+        "name": "Gafas de Sol Retro",
+        "description": "Montura de acetato estilo carey con lentes polarizadas verdes. Protección UV400 completa con un diseño clásico de los años 50.",
+        "price": 35.00,
+        "category": "Accesorios",
+        "sizes": [
+            "Única"
+        ],
+        "image": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=1000&auto=format&fit=crop",
+        "stock": 40
+    },
+    {
+        "name": "Zapatillas Blancas Clásicas",
+        "description": "Sneakers de perfil bajo en piel sintética blanca. Diseño limpio sin logotipos excesivos, combinables con traje o chándal.",
+        "price": 75.00,
+        "category": "Accesorios",
+        "sizes": [
+            "38",
+            "39",
+            "40",
+            "41",
+            "42",
+            "43",
+            "44"
+        ],
+        "image": "https://images.unsplash.com/photo-1560769629-975ec94e6a86?q=80&w=1000&auto=format&fit=crop",
+        "stock": 20
+    }
+]
