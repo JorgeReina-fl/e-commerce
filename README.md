@@ -339,9 +339,9 @@ MIT License - Libre para uso comercial
 ## 👨‍💻 Autor
 
 **Tu Nombre**
-- 🌐 Website: tuportfolio.com
-- 📧 Email: tu@email.com
-- 💼 LinkedIn: /in/tuperfil
+- 🌐 Website: jorgereina.es
+- 📧 Email: jorgereina.rp@gmail.com
+- 💼 LinkedIn: /in/jorgereinafl/
 
 ---
 
